@@ -115,11 +115,7 @@ app.get("/produk", async (req, res, next) => {
 
 // GET: Produk berdasarkan Kode Produk
 app.get("/produk/:kd_produk", async (req, res, next) => {
-  const sql = `
-    SELECT kd_produk, nm_brg, hrg, ket_stok
-    FROM produk
-    WHERE kd_produk = $1
-    `;
+  const sql = `SELECT * FROM produk WHERE kd_produk = $1`;
   try {
     const result = await db.query(sql, [req.params.kd_produk.toUpperCase()]);
     if (result.rows.length === 0) {
@@ -171,11 +167,6 @@ app.put(
   "/produk/:kd_produk",
   [authenticateToken, authorizeRole("admin")],
   async (req, res, next) => {
-    // Menggunakan nm_barang di destructring karena ini adalah nama field dari req.body
-    // Anda harus memastikan klien mengirim 'nm_brg' atau 'nm_barang' di body.
-    // Saya asumsikan klien mengirim 'nm_barang' (karena kode Anda memakainya)
-    // Namun, jika klien menggunakan nama kolom DB, maka harusnya nm_brg.
-    // Saya ubah variabel di sini ke nm_brg agar konsisten dengan DB.
     const { nm_brg, hrg, ket_stok } = req.body;
     const kdProduk = req.params.kd_produk.toUpperCase(); // Validasi stok jika ada
 
@@ -214,10 +205,9 @@ app.put(
       queryParams.push(ket_stok);
     }
 
-    const sql = `
-        UPDATE produk SET ${updateFields.join(", ")} 
-        WHERE kd_produk = $${paramCounter} 
-        RETURNING *`;
+    const sql = `UPDATE produk SET ${updateFields.join(
+      ", "
+    )} WHERE kd_produk = $${paramCounter} RETURNING *`;
 
     queryParams.push(kdProduk);
 
