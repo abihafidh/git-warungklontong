@@ -104,11 +104,7 @@ app.post("/auth/login", async (req, res, next) => {
 
 // GET: Semua produk
 app.get("/produk", async (req, res, next) => {
-  const sql = `
-    SELECT kd_produk, nm_brg, hrg, ket_stok
-    FROM produk
-    ORDER BY kd_produk ASC
-    `;
+  const sql = `SELECT * FROM produk ORDER BY kd_produk ASC`;
   try {
     const result = await db.query(sql);
     res.json(result.rows);
@@ -152,8 +148,7 @@ app.post("/produk", authenticateToken, async (req, res, next) => {
       .json({ error: "ket_stok harus 'ada' atau 'habis'." });
   } // Menggunakan nm_brg di query SQL
 
-  const sql =
-    `INSERT INTO produk (kd_produk, nm_brg, hrg, ket_stok) VALUES ($1, $2, $3, $4) RETURNING *`;
+  const sql = `INSERT INTO produk (kd_produk, nm_brg, hrg, ket_stok) VALUES ($1, $2, $3, $4) RETURNING *`;
   try {
     const result = await db.query(sql, [
       kd_produk.toUpperCase(),
